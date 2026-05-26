@@ -40,7 +40,7 @@ import java.util.*;
  */
 class Node {
   final int[] cells;//0を空、1をマル、-1をバツとする
-  final int turn;//手番。1をマル、-1をバツとする
+  int turn;//手番。1をマル、-1をバツとする
   static final int[][] LINES = {
   {0,1,2},{3,4,5},{6,7,8},
   {0,3,6},{1,4,7},{2,5,8},
@@ -56,6 +56,8 @@ class Node {
     this.cells = cells;
     this.turn = turn;
   }
+
+  int getTurn() { return this.turn; }
 
   /**
    * 指定された手を適用して得られる新しい状態を返す。

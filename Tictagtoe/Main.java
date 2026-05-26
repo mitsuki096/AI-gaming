@@ -13,7 +13,7 @@ public class Main {
             //printBoard(currentNode);
 
             Move nextMove;
-            if (currentNode.isTurnX()) {
+            if (currentNode.getTurn() == 1) {
                 // 先手の番：プレイヤーAに次の手を考えさせる
                 nextMove = playerA.think(currentNode);
             } else {
