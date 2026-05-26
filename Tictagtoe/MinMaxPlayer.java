@@ -115,4 +115,9 @@ public class MinMaxPlayer implements Player {
   public boolean isTerminal(Node node, int depth) {
     return node.isGoal() || depth > this.depthLimit;
   }
+
+  public Move think(Node node){
+    System.out.println("think()が読みだされました。");
+    return new Move(4);
+  }
 }
