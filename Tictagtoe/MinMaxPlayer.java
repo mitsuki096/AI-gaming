@@ -1,4 +1,3 @@
-package Tictagtoe;
 /**
  * min-max 法によるゲーム木探索プレイヤー。
  *
