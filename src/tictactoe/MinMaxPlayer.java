@@ -1,5 +1,4 @@
 package tictactoe;
-
 /**
  * min-max 法によるゲーム木探索プレイヤー。
  *
@@ -118,8 +117,18 @@ public class MinMaxPlayer implements Player {
     return node.isGoal() || depth > this.depthLimit;
   }
 
-  public Move think(Node node){
-    System.out.println("think()が読みだされました。");
-    return new Move(4);
+  @Override
+  public Move think(Node node) {
+    float best = Float.NEGATIVE_INFINITY;
+    Move bestMove = null;
+    for (Move m : node.getMoves()) {
+      Node child = node.perform(m);
+      float val = minSearch(child, 1);
+      if (val > best) {
+        best = val;
+        bestMove = m;
+      }
+    }
+    return bestMove;
   }
 }

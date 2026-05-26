@@ -1,5 +1,5 @@
-package tictactoe;
 
+package tictactoe;
 /**
  * α-β 法（アルファ・ベータ枝刈り）によるゲーム木探索プレイヤー。
  *
@@ -68,7 +68,7 @@ package tictactoe;
 public class AlphaBetaPlayer implements Player {
 
   /** 探索の最大深さ。{@link MinMaxPlayer#depthLimit} と同じ役割。*/
-  public int depthLimit = 4;
+  public int depthLimit = 9;
 
   /**
    * 訪問したノード数。{@link MinMaxPlayer#visited} と比較すると、
@@ -146,9 +146,23 @@ public class AlphaBetaPlayer implements Player {
   public boolean isTerminal(Node node, int depth) {
     return node.isGoal() || depth > this.depthLimit;
   }
+
   @Override
   public Move think(Node node) {
-    System.out.println("think()が呼び出されました");
-    return new Move(3);
+    float alpha = Float.NEGATIVE_INFINITY;
+    float beta = Float.POSITIVE_INFINITY;
+    float best = Float.NEGATIVE_INFINITY;
+    Move bestMove = null;
+    for (Move m : node.getMoves()) {
+      Node child = node.perform(m);
+      float val = minSearch(child, alpha, beta, 1);
+      if (val > best) {
+        best = val;
+        bestMove = m;
+      }
+      alpha = Math.max(alpha, val);
+      if (alpha >= beta) break;
+    }
+    return bestMove;
   }
 }

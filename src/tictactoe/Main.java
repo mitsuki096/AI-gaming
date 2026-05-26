@@ -1,5 +1,4 @@
 package tictactoe;
-
 public class Main {
         public static void main(String[] args) {
         // 1. 初期状態（空の盤面）の生成
@@ -12,7 +11,8 @@ public class Main {
         // 3. ゲームループ
         while (!currentNode.isGoal()) {
             // 現在の盤面を描画（標準出力など）
-            //printBoard(currentNode);
+            System.out.println();
+            System.out.println(currentNode);
 
             Move nextMove;
             if (currentNode.getTurn() == 1) {

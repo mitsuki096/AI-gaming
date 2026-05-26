@@ -111,7 +111,18 @@ class Node {
 
   @Override
   public String toString() {
-    return Arrays.toString(this.cells) + " turn=" + this.turn;//今の盤面と手番を文字列化
+    StringBuilder sb = new StringBuilder();
+    for (int r = 0; r < 3; r++) {
+      for (int c = 0; c < 3; c++) {
+        int v = this.cells[r * 3 + c];
+        char ch = v == 1 ? '◌' : (v == -1 ? '×' : '.');
+        sb.append(ch);
+        if (c < 2) sb.append(' ');
+      }
+      if (r < 2) sb.append('\n');
+    }
+    sb.append("  turn=").append(this.turn);
+    return sb.toString(); // 今の盤面と手番を文字列化（3列ごと改行）
   }
 }
 
