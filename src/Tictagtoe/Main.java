@@ -1,3 +1,5 @@
+package Tictagtoe;
+
 public class Main {
         public static void main(String[] args) {
         // 1. 初期状態（空の盤面）の生成
@@ -5,7 +7,7 @@ public class Main {
 
         // 2. プレイヤーの準備（ここではメンバーAとメンバーBのAI）
         Player playerA = new MinMaxPlayer();
-        Player playerB = new AlphaBetaPlayer();
+        Player playerB = new Mitsuki_Player();
 
         // 3. ゲームループ
         while (!currentNode.isGoal()) {

@@ -1,3 +1,5 @@
+package Tictagtoe;
+
 /**
  * α-β 法（アルファ・ベータ枝刈り）によるゲーム木探索プレイヤー。
  *
@@ -10,10 +12,10 @@
  * 探索中、現在のノードで「呼び出し元（祖先ノード）が <b>既に保証している</b>
  * 評価値の範囲」を 2 つの数で持ち回る。
  * <ul>
- *   <li>{@code α} (alpha) = max 側がこれまでに保証できた <b>最大値</b>。
- *       「私は少なくとも α は取れる」というレベル。</li>
- *   <li>{@code β} (beta)  = min 側がこれまでに保証できた <b>最小値</b>。
- *       「相手は α を超える結果は許さない、α 以上は β で抑える」というレベル。</li>
+ * <li>{@code α} (alpha) = max 側がこれまでに保証できた <b>最大値</b>。
+ * 「私は少なくとも α は取れる」というレベル。</li>
+ * <li>{@code β} (beta) = min 側がこれまでに保証できた <b>最小値</b>。
+ * 「相手は α を超える結果は許さない、α 以上は β で抑える」というレベル。</li>
  * </ul>
  * 探索の興味は区間 {@code (α, β)} の内側にあり、ここに入らない値は
  * 「祖先のどれかが既に却下している」ため最終結果に影響しない。
@@ -21,24 +23,25 @@
  * <h2>枝刈り条件 {@code α >= β} の意味</h2>
  * α が β 以上になった時点で、
  * <ul>
- *   <li>max 側の検討中: 「私はもう少なくとも α が取れる」と分かったが、
- *       β は祖先の min がこれ以上は許さない上限。α ≥ β ということは、
- *       相手は私にこの分岐を選ばせる前に別の手を選ぶ。
- *       <b>→ この子は祖先で却下されるので、残りの兄弟を見ても無駄。</b></li>
- *   <li>min 側でも対称: β ≤ α なら、私（min）はもうそれ以下に抑えたが、
- *       祖先の max は α 未満の手を選ばないので、残りの兄弟を見ても無駄。</li>
+ * <li>max 側の検討中: 「私はもう少なくとも α が取れる」と分かったが、
+ * β は祖先の min がこれ以上は許さない上限。α ≥ β ということは、
+ * 相手は私にこの分岐を選ばせる前に別の手を選ぶ。
+ * <b>→ この子は祖先で却下されるので、残りの兄弟を見ても無駄。</b></li>
+ * <li>min 側でも対称: β ≤ α なら、私（min）はもうそれ以下に抑えたが、
+ * 祖先の max は α 未満の手を選ばないので、残りの兄弟を見ても無駄。</li>
  * </ul>
  * これを <b>β カット</b>（max 側）/ <b>α カット</b>（min 側）と呼ぶ。
  *
  * <h2>min-max からの差分</h2>
  * <ol>
- *   <li>引数に {@code alpha}, {@code beta} を追加（範囲のしぼり込み）</li>
- *   <li>ループ内で {@code alpha} (max 側) / {@code beta} (min 側) を更新</li>
- *   <li>{@code if (alpha >= beta) break;} のカット</li>
- *   <li>戻り値は更新された {@code alpha} / {@code beta} そのもの</li>
+ * <li>引数に {@code alpha}, {@code beta} を追加（範囲のしぼり込み）</li>
+ * <li>ループ内で {@code alpha} (max 側) / {@code beta} (min 側) を更新</li>
+ * <li>{@code if (alpha >= beta) break;} のカット</li>
+ * <li>戻り値は更新された {@code alpha} / {@code beta} そのもの</li>
  * </ol>
  *
  * <h2>探索木の例 (Node.java) でのカット動作</h2>
+ * 
  * <pre>
  *               A           ← max (α=-∞, β=+∞)
  *              / \
@@ -59,13 +62,14 @@
  *     α=max(2, 1)=2
  *   return 2.0
  * </pre>
+ * 
  * min-max では葉を 4 つすべて評価したが、α-β では G が省略され 3 つだけ。
  * 大きな木ほどこの効果は劇的で、最適な手順並び替えと組み合わせれば
  * 計算量は O(b^d) → O(b^(d/2)) まで減らせる。
  */
 public class AlphaBetaPlayer implements Player {
 
-  /** 探索の最大深さ。{@link MinMaxPlayer#depthLimit} と同じ役割。*/
+  /** 探索の最大深さ。{@link MinMaxPlayer#depthLimit} と同じ役割。 */
   public int depthLimit = 4;
 
   /**
@@ -140,13 +144,26 @@ public class AlphaBetaPlayer implements Player {
     return beta;
   }
 
-  /** {@link MinMaxPlayer#isTerminal(Node, int)} と同じ。*/
+  /** {@link MinMaxPlayer#isTerminal(Node, int)} と同じ。 */
   public boolean isTerminal(Node node, int depth) {
     return node.isGoal() || depth > this.depthLimit;
   }
+
   @Override
   public Move think(Node node) {
-    System.out.println("think()が呼び出されました");
-    return new Move(3);
+    float bestValue = Float.NEGATIVE_INFINITY;
+    Move bestMove = null;
+
+    for (Move move : node.getMoves()) {
+      Node nextNode = node.perform(move);
+
+      float childValue = minSearch(nextNode, bestValue, Float.POSITIVE_INFINITY, 1);
+
+      if (childValue > bestValue) {
+        bestValue = childValue;
+        bestMove = move;
+      }
+    }
+    return bestMove;
   }
 }

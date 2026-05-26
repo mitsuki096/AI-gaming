@@ -1,26 +1,29 @@
+package Tictagtoe;
+
 /**
  * min-max 法によるゲーム木探索プレイヤー。
  *
  * <h2>min-max 法とは</h2>
  * 二人零和ゲーム（一方の得 = 他方の損）でよく使われる探索手法。
  * <ul>
- *   <li>自分（max プレイヤー）は評価値が <b>最大</b> になる手を選ぶ。</li>
- *   <li>相手（min プレイヤー）は評価値が <b>最小</b> になる手を選ぶ（自分から見て）。</li>
- *   <li>葉まで読みきれない場合は {@code depthLimit} で打ち切り、評価関数で
- *       「その時点の局面の優劣」を推定する。</li>
+ * <li>自分（max プレイヤー）は評価値が <b>最大</b> になる手を選ぶ。</li>
+ * <li>相手（min プレイヤー）は評価値が <b>最小</b> になる手を選ぶ（自分から見て）。</li>
+ * <li>葉まで読みきれない場合は {@code depthLimit} で打ち切り、評価関数で
+ * 「その時点の局面の優劣」を推定する。</li>
  * </ul>
  *
  * <h2>{@link #maxSearch} と {@link #minSearch} の対称性</h2>
  * 2 つのメソッドはほぼ同型で、次の 3 点だけが異なる。
  * <ol>
- *   <li>初期値: {@code -∞} か {@code +∞} か</li>
- *   <li>更新: {@code Math.max} か {@code Math.min} か</li>
- *   <li>再帰呼び出し先: {@code minSearch} か {@code maxSearch} か（互いに呼び合う）</li>
+ * <li>初期値: {@code -∞} か {@code +∞} か</li>
+ * <li>更新: {@code Math.max} か {@code Math.min} か</li>
+ * <li>再帰呼び出し先: {@code minSearch} か {@code maxSearch} か（互いに呼び合う）</li>
  * </ol>
  * この対称性は negaMax と呼ばれる形にまとめると 1 つの関数で書けるが、
  * 本教材では「max と min の役割の違い」を理解しやすくするために分けて書く。
  *
  * <h2>探索木の例（Node.java のゲーム木）での動作</h2>
+ * 
  * <pre>
  *               A           ← max: 子の値 (2.0, 1.0) の最大 → 2.0
  *              / \
@@ -80,7 +83,7 @@ public class MinMaxPlayer implements Player {
   /**
    * min プレイヤー（相手）の手番での探索。
    * 子ノードの中で {@link #maxSearch} の戻り値が <b>最小</b> となる枝を選ぶ
-   *（相手は自分にとって不利な手を選ぶと仮定する）。
+   * （相手は自分にとって不利な手を選ぶと仮定する）。
    *
    * @param node  現在のノード（相手が指す番）
    * @param depth 現在の深さ
@@ -108,16 +111,28 @@ public class MinMaxPlayer implements Player {
   /**
    * 探索を打ち切るべきか。
    * <ul>
-   *   <li>葉に到達した → 評価値が確定するので打ち切り</li>
-   *   <li>深さ制限を超えた → これ以上深く読まず、評価関数で推定</li>
+   * <li>葉に到達した → 評価値が確定するので打ち切り</li>
+   * <li>深さ制限を超えた → これ以上深く読まず、評価関数で推定</li>
    * </ul>
    */
   public boolean isTerminal(Node node, int depth) {
-    return node.isGoal() || depth > this.depthLimit;
+    return node.isGoal() || depth >= this.depthLimit;
   }
 
-  public Move think(Node node){
-    System.out.println("think()が読みだされました。");
-    return new Move(4);
+  public Move think(Node node) {
+    float bestValue = Float.NEGATIVE_INFINITY;
+    Move bestMove = null;
+
+    for (Move move : node.getMoves()) {
+      Node nextNode = node.perform(move);
+
+      float childValue = minSearch(nextNode, 1);
+
+      if (childValue > bestValue) {
+        bestValue = childValue;
+        bestMove = move;
+      }
+    }
+    return bestMove;
   }
 }
