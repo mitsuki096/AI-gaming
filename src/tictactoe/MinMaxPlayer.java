@@ -1,3 +1,5 @@
+package tictactoe;
+
 /**
  * min-max 法によるゲーム木探索プレイヤー。
  *

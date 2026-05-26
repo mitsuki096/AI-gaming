@@ -1,3 +1,5 @@
+package tictactoe;
+
 public class Main {
         public static void main(String[] args) {
         // 1. 初期状態（空の盤面）の生成

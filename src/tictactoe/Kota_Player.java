@@ -1,3 +1,5 @@
+package tictactoe;
+
 public class Kota_Player implements Player {
 
     //探索の最大深さ
