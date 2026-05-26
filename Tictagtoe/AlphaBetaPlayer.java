@@ -144,4 +144,9 @@ public class AlphaBetaPlayer implements Player {
   public boolean isTerminal(Node node, int depth) {
     return node.isGoal() || depth > this.depthLimit;
   }
+  @Override
+  public Move think(Node node) {
+    System.out.println("think()が呼び出されました");
+    return new Move(3);
+  }
 }
