@@ -1,4 +1,3 @@
-package Tictagtoe;
 import java.util.*;
 
 /**
@@ -30,71 +29,85 @@ import java.util.*;
  * ゲーム木探索の本質はこの 6 要素にあり、オセロ・チェス・将棋など多くの
  * 二人完全情報ゲームが、この同じ枠組みで実装できる。本ファイルはその
  * 「枠組みそのもの」を最小例で示すための教材である。
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  */
-public class Node {
+class Node {
+  final int[] cells;//0を空、1をマル、-1をバツとする
+  final int turn;//手番。1をマル、-1をバツとする
+  static final int[][] LINES = {
+  {0,1,2},{3,4,5},{6,7,8},
+  {0,3,6},{1,4,7},{2,5,8},
+  {0,4,8},{2,4,6}};//勝利条件の8パターン。これが葉の代わりとなる
 
-  /**
-   * 葉ノードの評価値（max プレイヤー視点）。
-   * 葉でないノードは EVAL に登場しない。
-   */
-  static final Map<String, Float> EVAL = Map.of(
-      "D", 3.0f,
-      "E", 2.0f,
-      "F", 1.0f,
-      "G", 4.0f);
+  //Mapの代わり。Mapと比べ、値を持たない(それはそう)
+  Node(){
+    this.cells = new int[9];
+    this.turn = 1;
+  }
 
-  /**
-   * 各ノードから到達できる子ノード。葉は CHILDREN に登場しない
-   * （= 子を持たない = 葉、として {@link #isGoal()} で判定する）。
-   */
-  static final Map<String, List<String>> CHILDREN = Map.of(
-      "A", List.of("B", "C"),
-      "B", List.of("D", "E"),
-      "C", List.of("F", "G"));
-
-  /** このノードを示すラベル（"A"〜"G"）。*/
-  final String name;
-
-  public Node(String name) {
-    this.name = name;
+  Node(int[] cells, int turn) {
+    this.cells = cells;
+    this.turn = turn;
   }
 
   /**
    * 指定された手を適用して得られる新しい状態を返す。
    * <p>unit1 では {@code board.placed(move)} に対応する。
-   * unit1 ではオセロのルールに従って石を反転させた新しい盤面を返すが、
-   * この簡略例では「行き先のノードを生成する」だけで済む。
+   * ある手を得たら、現在の盤面をコピーしてその手を適用した(moveに投げて)新しい盤面を返す。
    */
-  public Node perform(Move move) {
-    return new Node(move.name);
+  Node perform(Move move) {
+    int[] newCells = Arrays.copyOf(this.cells, this.cells.length);
+    newCells[move.idx] = this.turn;
+    return new Node(newCells, -this.turn);
   }
 
   /**
-   * このノードから指せる手のリスト。葉なら空リスト。
+   * 指せる手のリスト。
    * <p>unit1 では {@code board.findLegalMoves(color)} に対応する。
-   * 戻り値は新しい List で、Node 自身の状態は変化しない。
+   * 盤面を見て、空いているマスに置く手を列挙する。
    */
-  public List<Move> getMoves() {
+  List<Move> getMoves() {
     List<Move> result = new ArrayList<>();
-    for (String childName : CHILDREN.getOrDefault(this.name, List.of())) {
-      result.add(new Move(childName));
+    for (int i = 0; i < this.cells.length; i++) {
+      if (this.cells[i] == 0) {
+        result.add(new Move(i));
+      }
     }
     return result;
   }
 
   /**
-   * 終局（葉）か。
+   * 終局か。
    * <p>unit1 では {@code board.isEnd()} に対応する。
-   * この簡略例では「子が無い = 終局」だが、unit1 オセロでは
-   * 「双方とも合法手がない」など、別の条件で終局を判定する。
+   * unit1 オセロと恐らく同じように「双方とも合法手がない」「どちらかが勝利」で終局を判定する。
    */
-  public boolean isGoal() {
-    return getMoves().isEmpty();
+  boolean isGoal() {
+    return winner() != 0 || getMoves().isEmpty();
+  }
+
+  /**
+   * 勝者判定: 1 = マル の勝ち, -1 = バツ の勝ち, 0 = なし
+   * ノードの葉の代わり。
+   */
+  int winner() {
+    for (int[] l : LINES){
+      int s = this.cells[l[0]] + this.cells[l[1]] + this.cells[l[2]];
+      if (s == 3) return Integer.MAX_VALUE;
+      if (s == -3) return Integer.MIN_VALUE;
+    }
+    return 0;
   }
 
   @Override
   public String toString() {
-    return this.name;
+    return Arrays.toString(this.cells) + " turn=" + this.turn;//今の盤面と手番を文字列化
   }
 }
 
@@ -109,16 +122,11 @@ public class Node {
  */
 class Move {
   /** 行き先のノード名。unit1 では index + color に相当する。*/
-  final String name;
-
-  Move(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public String toString() {
-    return this.name;
-  }
+  final int idx;
+  Move(int idx) { this.idx = idx; }
+  int row() { return idx / 3; }//行はindexを3で割った商 ex) idx = 2 -> row = 0
+  int col() { return idx % 3; }//列はindexを3で割った余り ex) idx = 2 -> col = 2
+  @Override public String toString() { return String.format("(%d,%d)", row(), col()); }
 }
 
 /**
@@ -132,11 +140,22 @@ class Move {
  * {@code new Eval()} する無駄を省ける。
  */
 class Eval {
-  /** 全プレイヤーで共有する評価器。状態を持たないので安全に共有できる。*/
   static final Eval shared = new Eval();
 
-  /** ノードに対する評価値（max プレイヤー視点）。葉のみ意味を持つ。*/
   float value(Node node) {
-    return Node.EVAL.get(node.name);
+    int w = node.winner();
+    if (w == Integer.MAX_VALUE) return 1.0f;    // マルの勝ち
+    if (w == Integer.MIN_VALUE) return -1.0f;  // バツの勝ち
+    if (node.getMoves().isEmpty()) return 0.0f; // 引き分け
+
+    float score = 0f;
+    for (int[] l : Node.LINES){
+      int sum = node.cells[l[0]] + node.cells[l[1]] + node.cells[l[2]];
+      if (sum == 2) score += 0.5f;   //自分が2つ並んでいると強い
+      else if (sum == -2) score -= 0.5f;
+      else if (sum == 1) score += 0.1f;
+      else if (sum == -1) score -= 0.1f;
+    }
+    return score;
   }
 }
