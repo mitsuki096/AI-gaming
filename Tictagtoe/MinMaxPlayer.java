@@ -35,7 +35,7 @@ package Tictagtoe;
  *   maxSearch(A) = max(2, 1) = 2.0
  * </pre>
  */
-public class MinMaxPlayer {
+public class MinMaxPlayer implements Player {
 
   /**
    * 探索の最大深さ。{@code depth > depthLimit} になった時点で打ち切り、

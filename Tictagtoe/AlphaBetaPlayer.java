@@ -64,7 +64,7 @@ package Tictagtoe;
  * 大きな木ほどこの効果は劇的で、最適な手順並び替えと組み合わせれば
  * 計算量は O(b^d) → O(b^(d/2)) まで減らせる。
  */
-public class AlphaBetaPlayer {
+public class AlphaBetaPlayer implements Player {
 
   /** 探索の最大深さ。{@link MinMaxPlayer#depthLimit} と同じ役割。*/
   public int depthLimit = 4;
