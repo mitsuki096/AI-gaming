@@ -7,4 +7,12 @@ public class Kota_Player implements Player {
     public Move think(Node node) {
         return new Move(3);
     }
+
+    public float maxSearch(Node node, float alpha, float beta, int depth) {
+        return 0;
+    }
+
+    public float minSearch(Node node, float alpha, float beta, int depth) {
+        return 0;
+    }
 }
