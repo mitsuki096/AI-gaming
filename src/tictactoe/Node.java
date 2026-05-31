@@ -155,22 +155,32 @@ class Move {
  * {@code new Eval()} する無駄を省ける。
  */
 class Eval {
-  static final Eval shared = new Eval();
+    // 評価値の計算（このメソッドはfinalなので上書きさせない）
+    static final Eval shared = new Eval();
+    public final float value(Node node) {
+        // --- 1. 共通の勝敗判定（絶対に変えない部分） ---
+        int w = node.winner();
+        if (w == Integer.MAX_VALUE) return 1.0f;    // マルの勝ち
+        if (w == Integer.MIN_VALUE) return -1.0f;  // バツの勝ち
+        if (node.getMoves().isEmpty()) return 0.0f; // 引き分け
 
-  float value(Node node) {
-    int w = node.winner();
-    if (w == Integer.MAX_VALUE) return 1.0f;    // マルの勝ち
-    if (w == Integer.MIN_VALUE) return -1.0f;  // バツの勝ち
-    if (node.getMoves().isEmpty()) return 0.0f; // 引き分け
-
-    float score = 0f;
-    for (int[] l : Node.LINES){
-      int sum = node.cells[l[0]] + node.cells[l[1]] + node.cells[l[2]];
-      if (sum == 2) score += 0.5f;   //自分が2つ並んでいると強い
-      else if (sum == -2) score -= 0.5f;
-      else if (sum == 1) score += 0.1f;
-      else if (sum == -1) score -= 0.1f;
+        // --- 2. 個別計算部分の呼び出し ---
+        // まだ勝負がついていない場合は、子クラスで定義された細かな形勢判断を呼び出す
+        return calculateScore(node);
     }
-    return score;
-  }
+
+    // --- 各プレイヤー（子クラス）が自由に上書きする部分 ---
+    protected float calculateScore(Node node) {
+        // デフォルトの評価ロジック（そのまま残す）
+        float score = 0f;
+        for (int[] l : Node.LINES){
+            int sum = node.cells[l[0]] + node.cells[l[1]] + node.cells[l[2]];
+            if (sum == 2) score += 0.5f;
+            else if (sum == -2) score -= -10.0f;//評価を上書きしないとすごくアホになるようにしてる
+            else if (sum == 1) score += 0.1f;
+            else if (sum == -1) score -= 0.1f;
+        }
+        return score;
+    }
 }
+   

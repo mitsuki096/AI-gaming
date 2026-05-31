@@ -5,7 +5,7 @@ public class Main {
         Node currentNode = new Node();
 
         // 2. プレイヤーの準備（ここではメンバーAとメンバーBのAI）
-        Player playerA = new MinMaxPlayer();
+        Player playerA = new GenPlayer();
         Player playerB = new AlphaBetaPlayer();
 
         // 3. ゲームループ
@@ -32,9 +32,9 @@ public class Main {
         float finalScore = Eval.shared.value(currentNode);
         
         if (finalScore > 0) {
-            System.out.println("先手(A)の勝ち！");
+            System.out.println(playerA + "先手(A)の勝ち！");
         } else if (finalScore < 0) {
-            System.out.println("後手(B)の勝ち！");
+            System.out.println(playerB + "後手(B)の勝ち！");
         } else {
             System.out.println("引き分け！");
         }

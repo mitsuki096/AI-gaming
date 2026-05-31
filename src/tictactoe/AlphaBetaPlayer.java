@@ -68,7 +68,7 @@ package tictactoe;
 public class AlphaBetaPlayer implements Player {
 
   /** 探索の最大深さ。{@link MinMaxPlayer#depthLimit} と同じ役割。*/
-  public int depthLimit = 9;
+  public int depthLimit = 2;
 
   /**
    * 訪問したノード数。{@link MinMaxPlayer#visited} と比較すると、
